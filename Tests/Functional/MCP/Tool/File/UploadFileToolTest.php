@@ -129,8 +129,8 @@ class UploadFileToolTest extends AbstractFunctionalTest
     {
         $tool = GeneralUtility::makeInstance(UploadFileTool::class);
         $result = $tool->execute([
-            'url' => 'http://127.0.0.1/config.php',
-            'fileName' => 'config.php',
+            'url' => 'http://127.0.0.1/image.jpg',
+            'fileName' => 'image.jpg',
             'targetFolder' => '/',
         ]);
 
