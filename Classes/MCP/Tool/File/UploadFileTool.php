@@ -265,24 +265,6 @@ class UploadFileTool extends AbstractRecordTool
                 'timeout' => 300,
                 'headers' => ['User-Agent' => 'TYPO3-MCP-Server'],
             ];
-            // Pin the vetted IP so the actual connect cannot be re-routed to an
-            // internal address via DNS rebinding (honored by the curl handler;
-            // harmless elsewhere). Skipped when TYPO3 routes HTTP through a
-            // proxy: the proxy resolves the host itself, pinning would break it.
-            $parts = parse_url($currentUrl);
-            $host = $parts['host'] ?? '';
-            $proxyConfigured = !empty($GLOBALS['TYPO3_CONF_VARS']['HTTP']['proxy']);
-            if (!$proxyConfigured && $resolvedIp !== null && !filter_var($host, FILTER_VALIDATE_IP) && defined('CURLOPT_RESOLVE')) {
-                $port = $parts['port'] ?? (($parts['scheme'] ?? 'https') === 'https' ? 443 : 80);
-                // CURLOPT_RESOLVE wants IPv6 addresses in brackets; a bare one
-                // makes the entry malformed, and curl then silently ignores the
-                // pin - which would drop the rebinding protection for
-                // IPv6-only hosts.
-                $pinnedIp = filter_var($resolvedIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false
-                    ? '[' . $resolvedIp . ']'
-                    : $resolvedIp;
-                $options['curl'] = [\CURLOPT_RESOLVE => [$host . ':' . $port . ':' . $pinnedIp]];
-            }
 
             try {
                 $response = GeneralUtility::makeInstance(RequestFactory::class)->request($currentUrl, 'GET', $options);
